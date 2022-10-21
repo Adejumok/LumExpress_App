@@ -8,6 +8,7 @@ import africa.semicolon.lumexpress.data.models.Product;
 import africa.semicolon.lumexpress.data.repositories.CartRepository;
 import africa.semicolon.lumexpress.exception.CartNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,7 +30,7 @@ public class CartServiceImpl implements CartService{
         Product foundProduct = productService.getProductById(cartRequest.getCartId());
         Item item = buildCartItem(foundProduct);
         cart.getItems().add(item);
-        Cart savedCart = cartRepository.save(updateCartSubTotal(cart));
+        Cart savedCart = cartRepository.save(updateCartSubTotal(cart, item));
 
         return CartResponse.builder()
                 .message("items added to cart")
@@ -37,14 +38,10 @@ public class CartServiceImpl implements CartService{
                 .build();
     }
 
-    private Cart updateCartSubTotal(Cart cart){
-        cart.getItems().forEach(item -> sumCartItemPrices(cart, item));
+    private Cart updateCartSubTotal(Cart cart, Item item){
+        cart.setSubTotal(cart.getSubTotal()
+                .add(item.getProduct().getPrice()));
         return cart;
-    }
-
-    private static void sumCartItemPrices(Cart cart, Item item){
-        BigDecimal itemPrice = item.getProduct().getPrice();
-        cart.setSubTotal(itemPrice.add(cart.getSubTotal()));
     }
 
     private Item buildCartItem(Product foundProduct) {
@@ -54,5 +51,10 @@ public class CartServiceImpl implements CartService{
 
     public List<Cart> getCartList(){
         return cartRepository.findAll();
+    }
+
+    @Override
+    public Cart save(Cart cart) {
+        return cartRepository.save(cart);
     }
 }

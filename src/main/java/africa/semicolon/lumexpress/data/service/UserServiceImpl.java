@@ -9,13 +9,16 @@ import africa.semicolon.lumexpress.data.models.Vendor;
 import africa.semicolon.lumexpress.data.repositories.AdminRepository;
 import africa.semicolon.lumexpress.data.repositories.CustomerRepository;
 import africa.semicolon.lumexpress.data.repositories.VendorRepository;
+import africa.semicolon.lumexpress.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService{
     private final AdminRepository adminRepository;
     private final CustomerRepository customerRepository;
@@ -35,6 +38,21 @@ public class UserServiceImpl implements UserService{
                 .code(400)
                 .message("Login failed. Bad credentials")
                 .build();
+    }
+
+    @Override
+    public LumExpressUser getUserByUserName(String email) {
+        Optional<Admin> foundAdmin = adminRepository.findByEmail(email);
+        if (foundAdmin.isPresent()) return foundAdmin.get();
+
+        Optional<Customer> foundCustomer = customerRepository.findByEmail(email);
+        if (foundCustomer.isPresent()) log.info("user->{}", foundCustomer);
+        if (foundCustomer.isPresent()) return foundCustomer.get();
+
+        Optional<Vendor> foundVendor = vendorRepository.findByEmail(email);
+        if (foundVendor.isPresent()) return foundVendor.get();
+
+        throw new UserNotFoundException("User with email "+email+"not found");
     }
 
     private LoginResponse buildSuccessfulLoginResponse(LumExpressUser user) {

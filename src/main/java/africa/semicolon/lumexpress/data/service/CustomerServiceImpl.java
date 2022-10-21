@@ -14,12 +14,14 @@ import africa.semicolon.lumexpress.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,12 +34,15 @@ public class CustomerServiceImpl implements CustomerService{
     private final ModelMapper mapper;
     private final EmailNotificationService emailNotificationService;
     private final VerificationTokenService verificationTokenService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public CustomerRegistrationResponse register(CustomerRegistrationRequest registerRequest) throws FileNotFoundException {
         Customer customer = mapper.map(registerRequest, Customer.class);
         customer.setCart(new Cart());
         setCustomerAddress(registerRequest, customer);
+        String encodedPassword = passwordEncoder.encode(customer.getPassword());
+        customer.setPassword(encodedPassword);
         Customer savedCustomer = customerRepository.save(customer);
         log.info("customer to be saved in db::{}", savedCustomer);
         VerificationToken token =verificationTokenService.createToken(savedCustomer.getEmail());
@@ -101,6 +106,11 @@ public class CustomerServiceImpl implements CustomerService{
         customerUpdate.getAddresses().add(foundAddress.get());
         Customer updatedCustomer = customerRepository.save(customerUpdate);
         return String.format("%s details updated successfully", updatedCustomer.getFirstName());
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
     }
 
     private void applyAddressUpdate(Address address, UpdateCustomerDetails updateCustomerDetails) {
