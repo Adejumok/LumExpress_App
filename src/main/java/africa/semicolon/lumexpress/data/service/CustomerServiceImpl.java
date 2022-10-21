@@ -4,12 +4,10 @@ import africa.semicolon.lumexpress.data.dto.request.CustomerRegistrationRequest;
 import africa.semicolon.lumexpress.data.dto.request.EmailNotificationRequest;
 import africa.semicolon.lumexpress.data.dto.request.UpdateCustomerDetails;
 import africa.semicolon.lumexpress.data.dto.response.CustomerRegistrationResponse;
-import africa.semicolon.lumexpress.data.models.Address;
-import africa.semicolon.lumexpress.data.models.Cart;
-import africa.semicolon.lumexpress.data.models.Customer;
-import africa.semicolon.lumexpress.data.models.VerificationToken;
+import africa.semicolon.lumexpress.data.models.*;
 import africa.semicolon.lumexpress.data.repositories.CustomerRepository;
 import africa.semicolon.lumexpress.data.service.notification.EmailNotificationService;
+import africa.semicolon.lumexpress.exception.LumExpressException;
 import africa.semicolon.lumexpress.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +35,9 @@ public class CustomerServiceImpl implements CustomerService{
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public CustomerRegistrationResponse register(CustomerRegistrationRequest registerRequest) throws FileNotFoundException {
+    public CustomerRegistrationResponse register(CustomerRegistrationRequest registerRequest) throws LumExpressException, FileNotFoundException {
+        Optional<Customer> foundCustomer = customerRepository.findByEmail(registerRequest.getEmail());
+        if (foundCustomer.isPresent()) throw new LumExpressException(String.format("%s is already registered.", registerRequest.getEmail()));
         Customer customer = mapper.map(registerRequest, Customer.class);
         customer.setCart(new Cart());
         setCustomerAddress(registerRequest, customer);
@@ -92,7 +92,7 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
         @Override
-    public String updateCustomerProfile(UpdateCustomerDetails updateCustomerDetails) {
+    public String updateCustomerProfile(UpdateCustomerDetails updateCustomerDetails) throws UserNotFoundException {
         Customer customerUpdate = getCustomer(updateCustomerDetails);
         log.info("before update -> {}", customerUpdate);
         mapper.map(updateCustomerDetails, customerUpdate);
@@ -120,7 +120,7 @@ public class CustomerServiceImpl implements CustomerService{
         address.setState(updateCustomerDetails.getState());
     }
 
-    private Customer getCustomer(UpdateCustomerDetails updateCustomerDetails) {
+    private Customer getCustomer(UpdateCustomerDetails updateCustomerDetails) throws UserNotFoundException {
         return customerRepository.findById(updateCustomerDetails.getCustomerId())
                 .orElseThrow(() -> new UserNotFoundException(String.format("customer with id %d, not found",
                         updateCustomerDetails.getCustomerId())));

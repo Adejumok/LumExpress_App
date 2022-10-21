@@ -7,6 +7,7 @@ import africa.semicolon.lumexpress.data.models.Item;
 import africa.semicolon.lumexpress.data.models.Product;
 import africa.semicolon.lumexpress.data.repositories.CartRepository;
 import africa.semicolon.lumexpress.exception.CartNotFoundException;
+import africa.semicolon.lumexpress.exception.ProductNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class CartServiceImpl implements CartService{
     private Cart cart;
 
     @Override
-    public CartResponse addProductToCart(CartRequest cartRequest) {
+    public CartResponse addProductToCart(CartRequest cartRequest) throws CartNotFoundException, ProductNotFoundException {
         cartRepository.findById(cartRequest.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("cart with id %d not found", cartRequest.getCartId()));
         Product foundProduct = productService.getProductById(cartRequest.getCartId());
