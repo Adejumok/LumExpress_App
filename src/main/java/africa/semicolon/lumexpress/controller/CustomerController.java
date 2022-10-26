@@ -2,6 +2,7 @@ package africa.semicolon.lumexpress.controller;
 
 import africa.semicolon.lumexpress.data.dto.request.CustomerRegistrationRequest;
 import africa.semicolon.lumexpress.data.service.CustomerService;
+import africa.semicolon.lumexpress.exception.LumExpressException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ import java.io.FileNotFoundException;
 public class CustomerController {
     private final CustomerService customerService;
     @PostMapping("register")
-    public ResponseEntity<?> register(@Valid @RequestBody CustomerRegistrationRequest customerRegistrationRequest) throws FileNotFoundException {
+    public ResponseEntity<?> register(@Valid @RequestBody CustomerRegistrationRequest customerRegistrationRequest) throws FileNotFoundException, LumExpressException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(customerService.register(customerRegistrationRequest));
     }

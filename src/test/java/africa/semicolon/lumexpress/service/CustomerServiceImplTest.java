@@ -4,6 +4,8 @@ import africa.semicolon.lumexpress.data.dto.request.CustomerRegistrationRequest;
 import africa.semicolon.lumexpress.data.dto.request.UpdateCustomerDetails;
 import africa.semicolon.lumexpress.data.dto.response.CustomerRegistrationResponse;
 import africa.semicolon.lumexpress.data.service.CustomerService;
+import africa.semicolon.lumexpress.exception.LumExpressException;
+import africa.semicolon.lumexpress.exception.UserNotFoundException;
 import africa.semicolon.lumexpress.util.LumExpressUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +39,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void register() throws FileNotFoundException {
+    void register() throws FileNotFoundException, LumExpressException {
         CustomerRegistrationResponse customerRegistrationResponse=
                 customerService.register(request);
         assertThat(customerRegistrationResponse).isNotNull();
@@ -54,7 +56,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void updateProfile() throws FileNotFoundException {
+    void updateProfile() throws FileNotFoundException, LumExpressException, UserNotFoundException {
         CustomerRegistrationResponse customerRegistrationResponse=
                 customerService.register(request);
         UpdateCustomerDetails details = UpdateCustomerDetails

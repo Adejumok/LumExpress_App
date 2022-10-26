@@ -6,6 +6,8 @@ import africa.semicolon.lumexpress.data.dto.response.CartResponse;
 import africa.semicolon.lumexpress.data.models.Cart;
 import africa.semicolon.lumexpress.data.service.CartService;
 import africa.semicolon.lumexpress.data.service.ProductService;
+import africa.semicolon.lumexpress.exception.CartNotFoundException;
+import africa.semicolon.lumexpress.exception.ProductNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +36,7 @@ class CartServiceImplTest {
 
     @Test
     @DisplayName("test that cart can be created")
-    void addProductCartTest() {
+    void addProductCartTest() throws ProductNotFoundException, CartNotFoundException {
         CartRequest cartRequest = CartRequest.builder()
                 .cartId(savedCart.getId())
                 .productId(productService

@@ -7,6 +7,7 @@ import africa.semicolon.lumexpress.data.dto.response.AddProductResponse;
 import africa.semicolon.lumexpress.data.dto.response.UpdateProductResponse;
 import africa.semicolon.lumexpress.data.models.Product;
 import africa.semicolon.lumexpress.data.service.ProductService;
+import africa.semicolon.lumexpress.exception.ProductNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
@@ -64,7 +65,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void updateProductDetailsNameTest() throws JsonPointerException, IOException, JsonPatchException {
+    void updateProductDetailsNameTest() throws JsonPointerException, IOException, JsonPatchException, ProductNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode value = mapper.readTree("\"eggs\"");
         JsonPatch patch = new JsonPatch(List.of(new ReplaceOperation
@@ -79,7 +80,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void updateProductPriceDetailsTest() throws JsonPointerException, IOException{
+    void updateProductPriceDetailsTest() throws JsonPointerException, IOException, ProductNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
         UpdateProductResponse updateResponse=null;
         try {
@@ -99,7 +100,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void getProductByIdTest() {
+    void getProductByIdTest() throws ProductNotFoundException {
         Product foundProduct =
                 productService.getProductById(response.getProductId());
         assertThat(foundProduct).isNotNull();
